@@ -35,7 +35,7 @@ NETS="0.0.0.0/1
 255.255.255.252/31
 255.255.255.254/32"
 
-ipset="../src/ipset"
+ipset="${IPSET_BIN:-../src/ipset}"
 
 if which netmask >/dev/null 2>&1; then
 	net_first_addr() {
