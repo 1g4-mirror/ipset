@@ -615,7 +615,9 @@ init_list_set(struct net *net, struct ip_set *set, u32 size)
 	return true;
 }
 
+#ifdef HAVE_LOCKDEP_SET_CLASS
 static struct lock_class_key list_set_lockdep_key;
+#endif
 
 static int
 list_set_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
@@ -633,7 +635,9 @@ list_set_create(struct net *net, struct ip_set *set, struct nlattr *tb[],
 	if (size < IP_SET_LIST_MIN_SIZE)
 		size = IP_SET_LIST_MIN_SIZE;
 
+#ifdef HAVE_LOCKDEP_SET_CLASS
 	lockdep_set_class(&set->lock, &list_set_lockdep_key);
+#endif
 	set->variant = &set_variant;
 	set->dsize = ip_set_elem_len(set, tb, sizeof(struct set_elem),
 				     __alignof__(struct set_elem));
