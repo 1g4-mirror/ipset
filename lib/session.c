@@ -897,7 +897,7 @@ list_adt(struct ipset_session *session, struct nlattr *nla[])
 		break;
 	case IPSET_LIST_JSON:
 		/* print separator if a member for this set was printed before */
-		if (STREQ(ipset_data_setname(data), last_setname))
+		if (!session->sort && STREQ(ipset_data_setname(data), last_setname))
 			safe_snprintf(session, ",");
 		strcpy(last_setname, ipset_data_setname(data));
 		safe_snprintf(session, "\n      {\n        \"elem\" : \"");
@@ -1248,6 +1248,8 @@ print_set_done(struct ipset_session *session, bool callback_done)
 		? "NONE" : session->saved_setname);
 	if (session->sort) {
 		struct ipset_sorted *pos;
+		const char *comma = session->mode == IPSET_LIST_JSON ? "," : "";
+		uint32_t n = 0, numentries = 0;
 		int ret;
 
 		/* Print set header */
@@ -1257,11 +1259,18 @@ print_set_done(struct ipset_session *session, bool callback_done)
 			return MNL_CB_ERROR;
 
 		list_sort(session, &session->sorted, bystrcmp);
+		/* In JSON output we must not emit the last comma */
+		if (session->mode == IPSET_LIST_JSON) {
+			list_for_each_entry(pos, &session->sorted, list)
+				numentries++;
+		}
 
 		list_for_each_entry(pos, &session->sorted, list) {
+			if (++n == numentries)
+				comma = "";
 			ret = session->print_outfn(session, session->p,
-					"%s",
-					session->outbuf + pos->offset);
+					"%s%s",
+					session->outbuf + pos->offset, comma);
 			if (ret < 0)
 				return MNL_CB_ERROR;
 		}
