@@ -1142,7 +1142,7 @@ list_create(struct ipset_session *session, struct nlattr *nla[])
 		safe_snprintf(session, "\n");
 		safe_snprintf(session,
 			session->envopts & IPSET_ENV_LIST_HEADER ?
-			"    },\n" :
+			"    }\n" :
 			"    },\n    \"members\" : [");
 		break;
 	default:
@@ -1285,7 +1285,7 @@ print_set_done(struct ipset_session *session, bool callback_done)
 			break;
 		if (session->envopts & IPSET_ENV_LIST_HEADER) {
 			if (session->saved_setname[0] != '\0')
-				safe_snprintf(session, "    }");
+				safe_snprintf(session, "  }");
 			break;
 		}
 		if (session->saved_setname[0] != '\0')
