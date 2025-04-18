@@ -944,9 +944,14 @@ list_adt(struct ipset_session *session, struct nlattr *nla[])
 				safe_snprintf(session,
 					      ",\n        \"%s\" : true", arg->name[0]);
 				break;
+			} else if (arg->opt == IPSET_OPT_ADT_COMMENT) {
+				safe_snprintf(session, ",\n        \"%s\" : ", arg->name[0]);
+				safe_dprintf(session, arg->print, arg->opt);
+				break;
 			}
-			safe_snprintf(session, ",\n        \"%s\" : ", arg->name[0]);
+			safe_snprintf(session, ",\n        \"%s\" : \"", arg->name[0]);
 			safe_dprintf(session, arg->print, arg->opt);
+			safe_snprintf(session, "\"");
 			break;
 		default:
 			break;
@@ -1030,6 +1035,7 @@ list_create(struct ipset_session *session, struct nlattr *nla[])
 			      type->name, type->revision);
 		break;
 	case IPSET_LIST_JSON:
+		ipset_envopt_set(session, IPSET_ENV_QUOTED);
 		if (!firstipset)
 			safe_snprintf(session, ",\n");
 		firstipset = false;
@@ -1144,6 +1150,7 @@ list_create(struct ipset_session *session, struct nlattr *nla[])
 			session->envopts & IPSET_ENV_LIST_HEADER ?
 			"    }\n" :
 			"    },\n    \"members\" : [");
+		ipset_envopt_unset(session, IPSET_ENV_QUOTED);
 		break;
 	default:
 		break;
@@ -2295,8 +2302,6 @@ ipset_cmd(struct ipset_session *session, enum ipset_cmd cmd, uint32_t lineno)
 		if (session->mode == IPSET_LIST_NONE)
 			session->mode = cmd == IPSET_CMD_LIST ?
 				IPSET_LIST_PLAIN : IPSET_LIST_SAVE;
-		/* Reset just in case there are multiple modes in a session */
-		ipset_envopt_unset(session, IPSET_ENV_QUOTED);
 		switch (session->mode) {
 		case IPSET_LIST_XML:
 			/* Start the root element in XML mode */
@@ -2304,7 +2309,6 @@ ipset_cmd(struct ipset_session *session, enum ipset_cmd cmd, uint32_t lineno)
 			break;
 		case IPSET_LIST_JSON:
 			/* Start the root element in json mode */
-			ipset_envopt_set(session, IPSET_ENV_QUOTED);
 			safe_snprintf(session, "[\n");
 			break;
 		default:
