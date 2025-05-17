@@ -1,3 +1,14 @@
+7.24
+  - Improve fixing commas in sorted json output
+  - Fix extra quotes around elements in json output
+    (bugzilla #1793, issue 3.)
+  - Fix commas in sorted json output (bugzilla #1793, issue 4)
+  - Fix unquoted port range in json output (bugzilla #1793, issue 1)
+  - Fix extraneous comma in terse list json output (Joachim,
+    bugzilla #1793, issue 2)
+  - bash-completion: restore fix for syntax error (Jeremy Sowden)
+  - Correct typo in man-page (Jeremy Sowden)
+
 7.23
   - tests: runtest.sh: Keep running, print summary of failed tests
     (Phil Sutter)
