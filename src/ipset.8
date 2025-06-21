@@ -354,8 +354,8 @@ ipset create test hash:ip maxelem 2048
 .SS bucketsize
 This parameter is valid for the \fBcreate\fR command of all \fBhash\fR type sets.
 It specifies the maximal number of elements which can be stored in a hash
-bucket. Possible values are any even number between 2-14 and the default is
-14. Setting the value lower forces ipset to create larger hashes which
+bucket. Possible values are any even number between 2-12 and the default is
+12. Setting the value lower forces ipset to create larger hashes which
 consumes more memory but gives more speed at matching in the set.
 Example:
 .IP
