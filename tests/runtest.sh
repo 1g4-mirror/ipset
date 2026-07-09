@@ -18,13 +18,32 @@ tests="$tests hash:net,port,net hash:net6,port,net6"
 tests="$tests hash:net,iface.t hash:mac.t"
 tests="$tests comment setlist restore"
 # tests="$tests iptree iptreemap"
+
+if [ "$IPSET_UNSHARED" = "" ]; then
+	# Re-execute in new network namespace
+	export IPSET_UNSHARED="yes"
+	sysctl net.netfilter.nf_log_all_netns=1
+	exec unshare -n -- "$0" "$@"
+fi
+
+sysctl net.ipv4.conf.all.rp_filter=0
+
 cleanup() {
 	rm -f "$tmpdir"/.foo*
 	rm -f "$tmpdir/.loglines"
 	rmdir "$tmpdir"
+	ip link del eth0
 }
 trap cleanup EXIT
-tmpdir=$(mktemp -t -d ipset-XXXXXXXX)
+tmpdir=$(mktemp -t -d ip-set-XXXXXXXX)
+
+ip link set lo up
+
+# test cases send and expect packets on eth0.
+ip link add dev eth0 type dummy
+ip link set eth0 up
+ip addr add 10.255.255.64/8 dev eth0
+sysctl net.ipv4.conf.eth0.rp_filter=0
 
 # For correct sorting:
 LC_ALL=C
