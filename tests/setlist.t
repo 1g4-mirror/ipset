@@ -174,7 +174,7 @@
 # Counters and timeout: destroy sets
 0 ipset x
 # Counters: require sendip
-skip which sendip >/dev/null
+require_sendip
 # Counters: create set
 0 ipset n a hash:ip counters
 # Counters: create list set

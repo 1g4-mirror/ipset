@@ -195,7 +195,7 @@
 # Counters and timeout: destroy set
 0 ipset x test
 # Counters: require sendip
-skip which sendip
+require_sendip
 # Counters: create set
 0 ipset n test hash:ip counters
 # Counters: add elemet with zero counters

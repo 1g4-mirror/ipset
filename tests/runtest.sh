@@ -51,6 +51,14 @@ LC_ALL=C
 export LC_ALL
 export IPSET_TMP="$tmpdir"
 
+HAVE_SENDIP=n
+[ -z "`which sendip`" ] && HAVE_SENDIP=y
+if [ $HAVE_SENDIP = "n" ]; then
+	if python -c 'from scapy.all import ( IPv6 )'; then
+		HAVE_SENDIP=y
+	fi
+fi
+
 add_tests() {
 	# inet|inet6 network
 	if [ $1 = "inet" ]; then
@@ -72,7 +80,7 @@ add_tests() {
 	fi
 	if [ `$cmd -t filter | wc -l` -eq 7 -a \
 	     `$cmd -t filter | grep ACCEPT | wc -l` -eq 3 ]; then
-	     	if [ -z "`which sendip`" ]; then
+		if [ "$HAVE_SENDIP" = "n" ]; then
 	     		echo "sendip utility is missig: skipping $1 match and target tests"
 	     		return
 	     	elif [ -n "`which ss`" ]; then
@@ -130,6 +138,14 @@ for types in $tests; do
 	    	fi
 	    	continue
 	    	;;
+	    require_sendip)
+		if [ "$HAVE_SENDIP" = "y" ]; then
+			continue
+		else
+			echo "Skipping, sendip (scapy) not available"
+			break
+		fi
+		;;
 	    *)
 		;;
 	esac

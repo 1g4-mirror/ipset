@@ -209,7 +209,7 @@
 # Counters and timeout: destroy set
 0 ipset x test
 # Counters: require sendip
-skip which sendip
+require_sendip
 # Counters: create set
 0 ipset n test bitmap:ip range 10.255.0.0/16 counters
 # Counters: add elemet with zero counters
