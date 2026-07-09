@@ -3,6 +3,7 @@
 # set -x
 
 ipset=${IPSET_BIN:-../src/ipset}
+tmpdir=""
 
 tests="init"
 tests="$tests ipmap bitmap:ip"
@@ -17,10 +18,18 @@ tests="$tests hash:net,port,net hash:net6,port,net6"
 tests="$tests hash:net,iface.t hash:mac.t"
 tests="$tests comment setlist restore"
 # tests="$tests iptree iptreemap"
+cleanup() {
+	rm -f "$tmpdir"/.foo*
+	rm -f "$tmpdir/.loglines"
+	rmdir "$tmpdir"
+}
+trap cleanup EXIT
+tmpdir=$(mktemp -t -d ipset-XXXXXXXX)
 
 # For correct sorting:
 LC_ALL=C
 export LC_ALL
+export IPSET_TMP="$tmpdir"
 
 add_tests() {
 	# inet|inet6 network
@@ -105,7 +114,7 @@ for types in $tests; do
 		;;
 	esac
 	echo -ne "$types: $what: "
-	cmd=`echo $cmd | sed "s|ipset|$ipset 2>.foo.err|"`
+	cmd=`echo $cmd | sed "s|ipset|$ipset 2>"$tmpdir"/.foo.err|"`
 	# For the case: ipset list | ... | xargs -n1 ipset
 	cmd=`echo $cmd | sed "s|ipset|$ipset|2g"`
 	eval $cmd
@@ -116,7 +125,7 @@ for types in $tests; do
 	else
 		echo "FAILED"
 		echo "Failed test: $cmd"
-		cat .foo.err
+		cat "$tmpdir"/.foo.err
 		let "failcount++"
 		break
 	fi
@@ -137,7 +146,6 @@ for x in $tests; do
 	esac
 done
 rmmod ip_set >/dev/null 2>&1
-rm -f .foo*
 if [ "$failcount" -eq 0 ]; then
 	echo "All tests are passed"
 else

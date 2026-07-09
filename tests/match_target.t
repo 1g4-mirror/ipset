@@ -107,7 +107,7 @@
 # Create set and rules for 0.0.0.0/0 check in hash:net,iface
 0 ./iptables.sh inet netiface
 # Send probe packet
-0 ./sendip.sh -p ipv4 -id 10.255.255.254 -is 10.255.255.64 -p udp -ud 80 -us 1025 10.255.255.254 >/dev/null 2>&1
+0 ./sendip.sh -p ipv4 -id 10.255.255.254 -is 10.255.255.64 -p udp -ud 80 -us 1025 10.255.255.254
 # Check kernel log that the packet matched the set
 0 ./check_klog.sh 10.255.255.64 udp 1025 netiface
 # Destroy sets and rules

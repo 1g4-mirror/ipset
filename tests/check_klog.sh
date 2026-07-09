@@ -5,8 +5,8 @@ set -e
 
 # arguments: ipaddr proto port setname ...
 
-test -f .loglines || exit 1
-loglines=$(<.loglines)
+test -f "$IPSET_TMP/.loglines" || exit 1
+loglines=$(<"$IPSET_TMP/.loglines")
 if [ $loglines -ne 0 ]; then
     loglines=$((loglines - 1))
 fi
