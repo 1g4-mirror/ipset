@@ -22,6 +22,7 @@ tests="$tests comment setlist restore"
 if [ "$IPSET_UNSHARED" = "" ]; then
 	# Re-execute in new network namespace
 	export IPSET_UNSHARED="yes"
+	export IPSET_BIN="$ipset"
 	sysctl net.netfilter.nf_log_all_netns=1
 	exec unshare -n -- "$0" "$@"
 fi
