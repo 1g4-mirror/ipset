@@ -61,7 +61,7 @@
 # List set and check the number of elements
 0 n=`ipset -L test|grep '^10.'|wc -l` && test $n -eq 43520
 # Stress test del with range notation
-0 ./netgen.sh | tail +2|sed 's/^a/d/' | ipset restore
+0 ./netgen.sh | tail -n +2 | sed 's/^a/d/' | ipset restore
 # List set and check the number of elements
 0 n=`ipset -L test|grep '^10.'|wc -l` && test $n -eq 0
 # Destroy test set
