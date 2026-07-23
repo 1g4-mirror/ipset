@@ -228,6 +228,11 @@
 0 ipset -! a test 2.0.0.20/25,wlan0 timeout 700
 # Counters and timeout: check counters
 0 ./check_extensions test 2.0.0.0/25,wlan0 700 13 12479
+0 ipset flush test
+0 ipset add test 10.0.1.0/24,eth0
+1 ( for i in $(seq 1 10000); do ipset del test 10.0.1.0/24,eth1 ; done )
+0 ipset t test 10.0.1.0/24,eth0
+0 ipset list
 # Counters and timeout: destroy set
 0 ipset x test
 # eof
