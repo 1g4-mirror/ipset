@@ -54,7 +54,7 @@
 0 ./iptables.sh inet del
 # Send probe packet 10.255.255.64,icmp:host-prohibited
 0 ./sendip.sh -d r10 -p ipv4 -id 127.0.0.1 -is 10.255.255.64 -p icmp -ct 3 -cd 10 127.0.0.1
-# Check that 10.255.255.64,icmp:3/10 isn't in ipport
+# Check that 10.255.255.64,icmp:3/10 is not in ipport
 1 ipset test ipport 10.255.255.64,icmp:host-prohibited
 # Destroy sets and rules
 0 ./iptables.sh inet stop
@@ -117,5 +117,17 @@
 # Check packet counter
 0 ipset l test |grep -q '^10.255.255.64 packets 2'
 # Destroy sets and rules
+0 ./iptables.sh inet stop
+# hash:net,iface set with counters.
+# /24 entry: low counter  -> will fail  --packets-gt 50
+# /16 entry: high counter -> would pass --packets-gt 50
+0 ipset create test hash:net,iface counters
+0 ipset add test 127.0.0.0/24,lo packets 5 bytes 500
+0 ipset add test 127.0.0.0/16,lo packets 100 bytes 10000
+# Match the set with a counter threshold of 50.
+0 iptables -A INPUT -i lo -p icmp -m set --match-set test src,src --packets-gt 50 -j ACCEPT
+0 ping -c 1 -W 1 127.0.0.1 > /dev/null 2>&1
+# Check whether the iptables rule matched.
+0 (set -e; pkts=$(iptables -v -n -L INPUT | grep test | awk '{print $1}') ; [ "${pkts:-0}" -ge 1 ] && exit 0 )
 0 ./iptables.sh inet stop
 # eof
