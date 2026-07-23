@@ -33,13 +33,13 @@
 # IP: Restore values so that rehashing is triggered, old format
 0 ipset -R < iphash.t.restore.old
 # IP: Check that all values are restored
-0 (grep add iphash.t.restore | sort > "$IPSET_TMP/.foo.1") && (ipset -S test | grep add | sort > "$IPSET_TMP/.foo.2") && cmp "$IPSET_TMP/"{.foo.1,.foo.2}
+0 (grep add iphash.t.restore | sort > "$IPSET_TMP/.foo.1") && (ipset -S test | grep add | sort > "$IPSET_TMP/.foo.2") && diff -u "$IPSET_TMP/"{.foo.1,.foo.2}
 # IP: Delete test set
 0 ipset -X test
 # IP: Restore values so that rehashing is triggered
 0 ipset -R < iphash.t.restore
 # IP: Check that all values are restored
-0 (grep add iphash.t.restore | sort > "$IPSET_TMP/.foo.1") && (ipset -S test | grep add | sort > "$IPSET_TMP/.foo.2") && cmp "$IPSET_TMP/"{.foo.1,.foo.2}
+0 (grep add iphash.t.restore | sort > "$IPSET_TMP/.foo.1") && (ipset -S test | grep add | sort > "$IPSET_TMP/.foo.2") && diff -u "$IPSET_TMP/"{.foo.1,.foo.2}
 # IP: Flush test set
 0 ipset -F test
 # IP: Delete test set
@@ -55,7 +55,7 @@
 # IP: Save sets
 0 ipset -s -f "$IPSET_TMP/.foo0" save && ./ignore.sh "$IPSET_TMP/.foo0"
 # IP: Compare sorted save and restore
-0 cmp "$IPSET_TMP/.foo" iphash.t.restore.sorted
+0 diff -u "$IPSET_TMP/.foo" iphash.t.restore.sorted
 # IP: Delete test set
 0 ipset x test
 # IP: Delete test2 set
@@ -65,7 +65,7 @@
 # IP: Save the restored set
 0 (ipset save test | sort > "$IPSET_TMP/.foo.1") && ./ignore.sh "$IPSET_TMP/.foo.1"
 # IP: Compare save and restore
-0 (sort iphash.t.large > "$IPSET_TMP/.foo.2") && (cmp "$IPSET_TMP/.foo" "$IPSET_TMP/.foo.2")
+0 (sort iphash.t.large > "$IPSET_TMP/.foo.2") && (diff -u "$IPSET_TMP/.foo" "$IPSET_TMP/.foo.2")
 # IP: Delete all elements, one by one
 0 ipset list test | sed '1,/Members/d' | xargs -n1 ipset del test
 # IP: Delete test set
