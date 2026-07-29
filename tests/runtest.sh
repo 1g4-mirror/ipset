@@ -52,7 +52,7 @@ export LC_ALL
 export IPSET_TMP="$tmpdir"
 
 HAVE_SENDIP=n
-[ -z "`which sendip`" ] && HAVE_SENDIP=y
+[ -n "`which sendip`" ] && HAVE_SENDIP=y
 if [ $HAVE_SENDIP = "n" ]; then
 	if python -c 'from scapy.all import ( IPv6 )'; then
 		HAVE_SENDIP=y
