@@ -36,6 +36,45 @@ cleanup() {
 	ip link del eth0
 }
 trap cleanup EXIT
+
+kmemleak_found=0
+test -f /sys/kernel/debug/kmemleak && kmemleak_found=$(grep "unreferenced object" /sys/kernel/debug/kmemleak | wc -l)
+
+check_kmemleak_force()
+{
+	echo scan > /sys/kernel/debug/kmemleak
+
+	local lines=$(grep "unreferenced object" /sys/kernel/debug/kmemleak | wc -l)
+	if [ $lines -ne $kmemleak_found ];then
+		echo "FAILED"
+		cat /sys/kernel/debug/kmemleak
+		failcount=$((failcount+1))
+	else
+		echo "OK"
+	fi
+}
+
+check_failcount() {
+	local ret=0
+
+	if [ -f /sys/kernel/debug/kmemleak ]; then
+		echo -n  "Waiting 30 seconds, then doing kmemleak scan "
+		sleep 30
+		check_kmemleak_force
+	fi
+
+	rmmod ip_set >/dev/null 2>&1
+
+	if [ "$failcount" -eq 0 ]; then
+		echo "All tests are passed"
+	else
+		echo "$failcount tests have failed"
+		ret=1
+	fi
+
+	exit $ret
+}
+
 tmpdir=$(mktemp -t -d ip-set-XXXXXXXX)
 
 ip link set lo up
@@ -111,7 +150,9 @@ else
 fi
 
 # Make sure the scripts are executable
-chmod a+x check_* *.sh
+for f in check_* *.sh; do
+	test -x "$f" || chmod a+x "$f"
+done
 
 failcount=0
 for types in $tests; do
@@ -181,10 +222,5 @@ for x in $tests; do
 		;;
 	esac
 done
-rmmod ip_set >/dev/null 2>&1
-if [ "$failcount" -eq 0 ]; then
-	echo "All tests are passed"
-else
-	echo "$failcount tests have failed"
-	exit 1
-fi
+
+check_failcount
