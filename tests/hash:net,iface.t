@@ -235,4 +235,30 @@
 0 ipset list
 # Counters and timeout: destroy set
 0 ipset x test
+# Re-Create the set for wildcard tests.
+0 ipset create test hash:net,iface hashsize 128
+# Add a specific entry first, a wildcard entry for the same net second.
+0 ipset add test 10.0.1.0/24,eth0
+0 ipset add test 10.0.1.0/24,eth wildcard
+# Delete the specific entry.
+0 ipset del test 10.0.1.0/24,eth0
+# The wildcard entry should still be there and match eth1 via its prefix.
+0 ipset test test 10.0.1.0/24,eth1
+0 ipset flush test
+# Same layout: specific entry first, wildcard entry second.
+0 ipset add test 10.0.2.0/24,eth0
+0 ipset add test 10.0.2.0/24,eth wildcard
+# Re-add the specific entry with -exist, expecting a no-op refresh.
+0 ipset -exist add test 10.0.2.0/24,eth0
+# The wildcard entry should have survived the refresh and still match eth1.
+0 ipset test test 10.0.2.0/24,eth1
+0 ipset flush test
+# Add a nomatch exception first, a wildcard entry for the same net second.
+0 ipset add test 10.0.3.0/24,eth0 nomatch
+0 ipset add test 10.0.3.0/24,eth wildcard
+# eth1 isn't excluded, so the wildcard should match it.
+0 ipset test test 10.0.3.0/24,eth1
+# eth0 is excluded by the nomatch entry; it must not match via the wildcard.
+1 ipset test test 10.0.3.0/24,eth0
+0 ipset destroy test
 # eof
