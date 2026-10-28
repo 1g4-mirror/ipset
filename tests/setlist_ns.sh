@@ -19,18 +19,19 @@ sleep 15
 EOF
 )
 
-# First try with user namespaces and remapped-root.
+unshare_ok=no
+
+# Check if user namespaces and remapped-root is supported.
 options="-Urn"
+if ! unshare -n "$options" ls > /dev/null 2>&1;then
+	options="-n"
+fi
+
 if ! unshare "$options" bash -c "$CMD"; then
-	# Doesn't work - try with plain network namespaces.
-	if unshare -n bash -c "$CMD"; then
-		# "-Ur" unsupported
-		options="-n"
-	else
-		# Either network namespaces are not
-		# supported at all or $CMD is failing.
-		exit 1
-	fi
+	# Either network namespaces are not
+	# supported at all or $CMD is failing.
+	echo "unshare $options bash -c failed"
+	exit 1
 fi
 
 parallel=16
