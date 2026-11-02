@@ -260,5 +260,27 @@
 0 ipset test test 10.0.3.0/24,eth1
 # eth0 is excluded by the nomatch entry; it must not match via the wildcard.
 1 ipset test test 10.0.3.0/24,eth0
+0 ipset flush test
+# Add a wildcard entry
+0 ipset add test 10.0.4.0/24,eth wildcard
+# Add a second entry, same network, with nomatch
+0 ipset add test 10.0.4.0/24,et wildcard nomatch
+# Test wildcard entry match is preferred
+0 ipset test test 10.0.4.0/24,eth0
+0 ipset destroy test
+# Re-create the set with longer gc timeout.
+0 ipset create test hash:net,iface timeout 100
+# Add identical entry without wildcard, for eth0, 5s timeout
+0 ipset add test 10.0.5.0/24,eth0 timeout 5
+# Add permanent wildcard
+0 ipset add test 10.0.5.0/24,eth wildcard timeout 0
+# Test specific entry is matched
+0 ipset test test 10.0.5.0/24,eth0
+# Let the specific entry time out.
+0 sleep 8
+# Specific entry has expired. The wildcard entry must still match.
+0 ipset test test 10.0.5.0/24,eth0
+# Test a 2nd, unrelated interface matches the wildcard too.
+0 ipset test test 10.0.5.0/24,eth1
 0 ipset destroy test
 # eof
