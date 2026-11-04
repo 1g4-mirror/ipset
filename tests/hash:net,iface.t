@@ -282,5 +282,12 @@
 0 ipset test test 10.0.5.0/24,eth0
 # Test a 2nd, unrelated interface matches the wildcard too.
 0 ipset test test 10.0.5.0/24,eth1
+0 ipset flush test
+# Add a wildcard-flagged element
+0 ipset add test 10.0.6.0/24,eth wildcard
+# Delete the element. ipset del does not expose a wildcard flag
+0 ipset del test 10.0.6.0/24,eth
+# Check the wildcard element was removed
+1 ipset test test 10.0.6.0/24,eth1
 0 ipset destroy test
 # eof
